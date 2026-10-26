@@ -1,85 +1,114 @@
-# UNIX System Programming Lab: Programs 1-5
+# UNIX System Programming Lab
 
-Based on programs 1-5 in the supplied NMIT 21ISG64, 2021 scheme lab manual.
-All files use UTF-8 text, Unix LF line endings, and a final newline.
+C programs for experiments 1–10 of the **NMIT 21ISG64 Lab Manual, 2021 Scheme**.
 
-| File | Program |
-| --- | --- |
-| p1_limits.c | System limits, page size, hostname and working directory |
-| p2_posix_options.c | POSIX version and supported configuration options |
-| p3a_mv.c | Move/rename a file using rename() |
-| p3b_grep.c | Print input lines containing a literal substring |
-| p4_links.c | Create hard and symbolic links and show link counts |
-| p5_file_lock.c | Lock and unlock a file using fcntl() |
+## Programs
 
-## Upload to GitHub and clone
+| No. | File | Description |
+| --- | --- | --- |
+| 1 | `p1_limits.c` | System limits, page size, hostname and working directory |
+| 2 | `p2_posix_options.c` | POSIX version and supported configuration options |
+| 3(a) | `p3a_mv.c` | Move or rename a file using `rename()` |
+| 3(b) | `p3b_grep.c` | Print lines containing a literal substring |
+| 4 | `p4_links.c` | Create hard and symbolic links and display link counts |
+| 5 | `p5_file_lock.c` | Lock and unlock a file using `fcntl()` |
+| 6 | `6.c` | Inter-process communication using POSIX message queues |
+| 7(a) | `7a.c` | Execute two commands using a pipe |
+| 7(b) | `7b.c` | Communication using a named pipe (FIFO) |
+| 8 | `8.c` | Zombie, double-fork, orphan and parent–child demonstrations |
+| 9 | `9.c` | Signal handling using `sigaction()` and blocking `SIGINT` |
+| 10 | `10.c` | Synchronize threads using a semaphore |
 
-1. Extract lab-programs.zip.
-2. Create a GitHub repository named lab-programs.
-3. Use Add file > Upload files to upload the CONTENTS of the extracted folder to the repository root. Upload the C files, README.md, Makefile, .gitignore and .gitattributes. Do not upload only the ZIP.
-4. Commit the files.
-5. On your Linux machine, replace YOUR_USERNAME below:
+## Requirements
 
-```bash
-git clone https://github.com/YOUR_USERNAME/lab-programs.git
-cd lab-programs
-make
-```
+Use Linux with GCC installed.
 
-Requires GCC and Make. On Ubuntu, if missing:
+On Ubuntu or Debian:
 
 ```bash
 sudo apt install build-essential git
 ```
 
-Compile a single program without Make:
+## Compile
+
+Run these commands in the folder containing the source files:
 
 ```bash
-gcc -std=c11 -Wall -Wextra p1_limits.c -o p1_limits
-./p1_limits
+gcc -Wall -Wextra p1_limits.c -o p1_limits
+gcc -Wall -Wextra p2_posix_options.c -o p2_posix_options
+gcc -Wall -Wextra p3a_mv.c -o p3a_mv
+gcc -Wall -Wextra p3b_grep.c -o p3b_grep
+gcc -Wall -Wextra p4_links.c -o p4_links
+gcc -Wall -Wextra p5_file_lock.c -o p5_file_lock
+gcc -Wall -Wextra 6.c -o p6 -lrt
+gcc -Wall -Wextra 7a.c -o p7a
+gcc -Wall -Wextra 7b.c -o p7b
+gcc -Wall -Wextra 8.c -o p8
+gcc -Wall -Wextra 9.c -o p9
+gcc -Wall -Wextra 10.c -o p10 -pthread
 ```
 
 ## Run
 
-Programs 1 and 2:
+### Programs 1 and 2
 
 ```bash
 ./p1_limits
 ./p2_posix_options
 ```
 
-Programs 3-5: use a fresh demo directory so existing files are not overwritten:
+### Programs 3–5
+
+Use a fresh directory for the file demonstrations:
 
 ```bash
 mkdir demo
 cd demo
+
 printf 'Hello UNIX\nHello Linux\nUNIX lab\n' > sample.txt
+
 ../p3b_grep UNIX < sample.txt
 ../p3a_mv sample.txt moved.txt
 ../p4_links moved.txt
+
 ls -li moved.txt hard_link sym_link
+
 ../p5_file_lock
 cat testfile.txt
+
 cd ..
 ```
 
-The links program creates hard_link and sym_link in the current directory. Running it again there fails if those names already exist. The lock program opens or creates testfile.txt; run it in a fresh demo directory for clean output.
+For another run, use a different demo directory. Program 4 fails if `hard_link` or `sym_link` already exists.
 
-## Small corrections and scope
+### Programs 6–10
 
-- Program 2 checks runtime option support instead of reporting every defined macro as supported. It covers all the option names listed in the manual. The special VDISABLE character value is printed separately; file-dependent options are checked for `/`. Output varies by system and may differ from the manual's screenshot.
-- Program 1 reserves space for the hostname terminator. A limit printed as -1 may be indeterminate or unavailable; this simple example retains the manual's direct sysconf/pathconf output.
-- Program 3a is the manual's rename-based demonstration: it does not implement cross-filesystem moves or all mv options. A destination file can be replaced by rename().
-- Program 3b removes an unnecessary fixed-size pattern copy. It matches literal substrings, not regular expressions, and retains the manual's 1024-byte input buffer (use short text lines).
-- Program 4 removes unused variables and uses the correct link-count print conversion. stat() follows a symbolic link; lstat() inspects the symbolic link itself.
-- Program 5 initializes flock structures and uses sizeof to calculate write lengths without null terminators. fcntl locks are advisory: the process holding the lock can still write. This example locks, writes and unlocks immediately; it does not demonstrate two-process contention.
+Run each program separately:
 
-## Unix line endings
+| Program | Command | Instructions |
+| --- | --- | --- |
+| 6 | `./p6` | Enter messages; type `exit` on its own line to finish |
+| 7(a) | `./p7a` | Displays the line count of `ls -l` output |
+| 7(b) | `./p7b` | Displays the message received by the child |
+| 8 | `./p8` | Runs the process demonstrations in about 11 seconds |
+| 9 | `./p9` | Blocks Ctrl+C; use Ctrl+\ to stop |
+| 10 | `./p10` | Five threads increment the shared value to 5 |
 
-.gitattributes enforces LF line endings for text files, including after git clone on Windows. EOF is the end of a file; LF is the Unix line-ending format.
+## Important Notes
 
-## Clean compiled executables
+- Programs follow the manual's approach with corrections for errors and resource cleanup.
+- System limits, process IDs and thread execution order may vary.
+- Program 3(a) uses `rename()` and does not support cross-filesystem moves. An existing destination may be replaced.
+- Program 3(b) matches literal substrings, not regular expressions. Use short input lines.
+- Program 5 uses advisory file locks. The process holding the lock can still write.
+- Program 6 waits for the receiver before removing the message queue.
+- Program 7(b) follows the manual's parent–child example. These are related processes, although the question mentions unrelated processes.
+- Program 9 registers a handler but blocks `SIGINT`; the handler cannot run for that signal while it remains blocked.
+- If program 6 or 7(b) reports `File exists`, check whether another process is using the queue or FIFO before removing a stale object.
+- Source files use UTF-8 text and Unix LF line endings.
 
-```bash
-make clean
-```
+## GitHub Setup
+
+1. Upload the source files and `README.md` to your repository.
+2. Upload the extracted files, not only the ZIP.
+3. Clone the repository on your Linux machine:
